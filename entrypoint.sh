@@ -1,20 +1,21 @@
 #!/bin/bash
 set -e
 
-# CUPS starten
+# CUPS starten im Vordergrund
 cupsd -f &
 
-# 2 Sekunden warten, damit CUPS läuft
+# kurze Wartezeit, bis CUPS bereit ist
 sleep 2
 
 # Drucker nur anlegen, wenn er noch nicht existiert
-if ! lpstat -p HP2015DN >/dev/null 2>&1; then
-  # IPP-Treiber über HPLIP
-  lpadmin -p HP2015DN -E -v socket://10.0.0.165:9100 -m hpcups
+# if ! lpstat -p HP2015DN >/dev/null 2>&1; then
+#     echo "Richte Drucker HP2015DN ein..."
+#     # HPLIP Treiber
+#     lpadmin -p HP2015DN -E -v socket://10.0.0.165:9100 -m hpcups
 
-  # Standard-Druckoptionen setzen
-  lpoptions -p HP2015DN -o sides=two-sided-long-edge
-fi
+#     # Standard-Druckoptionen
+#     lpoptions -p HP2015DN -o sides=two-sided-long-edge
+# fi
 
-# Node.js Server starten
+# Node.js starten
 # exec node src/server.js

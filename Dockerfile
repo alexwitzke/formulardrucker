@@ -1,14 +1,14 @@
+# Basis: Ubuntu 22.04
 FROM ubuntu:22.04
 
-# Grundpakete + CUPS + HPLIP + Ghostscript
+# Pakete: CUPS, HPLIP, Node.js, curl, git
 RUN apt-get update && apt-get install -y \
     cups \
     hplip \
-    ghostscript \
-    curl \
-    git \
     nodejs \
     npm \
+    curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Arbeitsverzeichnis
@@ -18,14 +18,15 @@ WORKDIR /app
 COPY ./src /app/src
 COPY package.json /app/package.json
 
-# Node.js Dependencies
+# Node.js Abhängigkeiten installieren
 RUN npm install
 
 # PDFs Volume
 VOLUME /data/pdfs
 
-# CUPS starten + Drucker anlegen + Node.js starten
+# entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Start
 CMD ["/entrypoint.sh"]
