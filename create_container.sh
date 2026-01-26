@@ -24,7 +24,7 @@ docker build -t $container:latest .
 echo "Running container"
 docker run -d \
   --name $container \
-  -p 3000:3000 \
+  -p 3001:3000 \
   -v $appdata:/data \
   --restart unless-stopped \
   $container:latest

@@ -15,32 +15,34 @@ app.use("/pdfs", express.static("/data/pdfs"));
 
 // Startseite
 app.get("/", (req, res) => {
-  const config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
-  res.render("index", { forms: config.forms });
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
+    res.render("index", { forms: config.forms });
 });
 
 // Druck-Route
 app.post("/print/:id", (req, res) => {
-  const config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
-  const form = config.forms.find(f => f.id === req.params.id);
-  if (!form) return res.status(404).send("Formular nicht gefunden");
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
+    const form = config.forms.find(f => f.id === req.params.id);
+    if (!form) return res.status(404).send("Formular nicht gefunden");
 
-  const filePath = path.join("/data/pdfs", form.file);
+    const filePath = path.join("/data/pdfs", form.file);
 
-  // lp Optionen
-  const options = [];
-  if (form.duplex) options.push("-o sides=two-sided-long-edge");
-  //if (form.copies) options.push(`-n ${form.copies}`);
+    // lp Optionen
+    const options = [];
+    if (form.duplex) options.push("-o sides=two-sided-long-edge");
+    if (form.copies) options.push(`-n ${form.copies}`);
 
-  const cmd = `lp -d ${config.printer} ${options.join(" ")} "${filePath}"`;
+    const cmd = `lp -d ${config.printer} ${options.join(" ")} "${filePath}"`;
 
-  exec(cmd, (err, stdout, stderr) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send(stderr || err.message);
-    }
-    res.send("Druckauftrag erfolgreich gesendet");
-  });
+    //console.log(cmd);
+
+    exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send(stderr || err.message);
+        }
+        res.send("Druckauftrag erfolgreich gesendet");
+    });
 });
 
 app.listen(3000, () => console.log("Server läuft auf Port 3000"));
