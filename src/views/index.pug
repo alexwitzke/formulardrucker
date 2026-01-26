@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  each form in forms
+    .form-row(data-id=form.id data-pdf=`/pdfs/${form.file}`)
+      h3= form.name
+      .pages
+      button.print-button(type="button") Drucken
