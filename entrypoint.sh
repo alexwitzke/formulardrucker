@@ -11,7 +11,8 @@ lpinfo -m | grep -i raster || true
 # 3️⃣ Drucker nur anlegen, wenn er noch nicht existiert
 if ! lpstat -p HP2015DN >/dev/null 2>&1; then
   # Option A: RAW Socket
-  lpadmin -p HP2015DN -E -v socket://10.0.0.165:9100 -m raw
+  # lpadmin -p HP2015DN -E -v socket://10.0.0.165:9100 -m raw
+  lpadmin -p HP2015DN -E -v socket://10.0.0.165:9100 -m pwgraster
   
   # Option B (falls du Raster bevorzugst):
   # lpadmin -p HP2015DN -E -v socket://10.0.0.165:9100 -m pwgraster
