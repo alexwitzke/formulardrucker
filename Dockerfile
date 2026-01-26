@@ -1,23 +1,31 @@
-# Windows Server Core Base Image
-FROM mcr.microsoft.com/windows/servercore:ltsc2022
+FROM ubuntu:22.04
 
-# Node.js installieren
-RUN powershell -Command " \
-    Invoke-WebRequest 'https://nodejs.org/dist/v20.5.1/node-v20.5.1-x64.msi' -OutFile 'C:\\nodejs.msi'; \
-    Start-Process 'msiexec.exe' -ArgumentList '/i','C:\\nodejs.msi','/quiet','/norestart' -Wait; \
-    Remove-Item 'C:\\nodejs.msi' -Force \
-"
+# Grundpakete + CUPS + HPLIP + Ghostscript
+RUN apt-get update && apt-get install -y \
+    cups \
+    hplip \
+    ghostscript \
+    curl \
+    git \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
 
 # Arbeitsverzeichnis
-WORKDIR C:/app
+WORKDIR /app
 
 # App kopieren
-COPY ./src C:/app/src
-COPY package.json C:/app/package.json
+COPY ./src /app/src
+COPY package.json /app/package.json
+
+# Node.js Dependencies
 RUN npm install
 
-# Optionales Volume für PDFs
-VOLUME C:/data/pdfs
+# PDFs Volume
+VOLUME /data/pdfs
 
-# Node.js starten
-# CMD ["node", "src/server.js"]
+# CUPS starten + Drucker anlegen + Node.js starten
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+CMD ["/entrypoint.sh"]
