@@ -30,7 +30,7 @@ app.post("/print/:id", (req, res) => {
     // lp Optionen
     const options = [];
     if (form.duplex) options.push("-o sides=two-sided-long-edge");
-    if (form.copies) options.push(`-n ${form.copies}`);
+    //if (form.copies) options.push(`-n ${form.copies}`);
 
     const cmd = `lp -d ${config.printer} ${options.join(" ")} "${filePath}"`;
 
