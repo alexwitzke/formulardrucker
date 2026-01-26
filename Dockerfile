@@ -1,31 +1,23 @@
-# Basis-Image Node.js
-FROM node:20-bookworm
+# Windows Server Core Base Image
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
-# 1️⃣ Systempakete installieren: CUPS, cups-client, Ghostscript
-RUN apt-get update && \
-    apt-get install -y cups cups-client cups-filters ghostscript && \
-    rm -rf /var/lib/apt/lists/*
+# Node.js installieren
+RUN powershell -Command `
+    Invoke-WebRequest https://nodejs.org/dist/v20.5.1/node-v20.5.1-x64.msi -OutFile nodejs.msi ; `
+    Start-Process msiexec.exe -ArgumentList '/i','nodejs.msi','/quiet','/norestart' -Wait ; `
+    Remove-Item nodejs.msi -Force
 
-# 2️⃣ Arbeitsverzeichnis
-WORKDIR /app
+# Arbeitsverzeichnis
+WORKDIR C:/app
 
-# 3️⃣ Node.js Dependencies
-COPY package*.json ./
+# App kopieren
+COPY ./src C:/app/src
+COPY package.json C:/app/package.json
 RUN npm install
 
-# 4️⃣ Projektdateien kopieren
-COPY src ./src
-COPY public ./public
+# Freigabe PDFs (optional)
+VOLUME C:/data/pdfs
 
-# 5️⃣ entrypoint Script kopieren
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-# 6️⃣ Volume für PDFs / Config
-VOLUME /data
-
-# 7️⃣ Port für Web-App
-EXPOSE 3000
-
-# 8️⃣ Container Start
-ENTRYPOINT ["/entrypoint.sh"]
+# Node.js starten
+# CMD ["node", "src/server.js"]
+# CMD ["node", "src/server.js"]
