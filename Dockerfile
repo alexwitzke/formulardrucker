@@ -21,9 +21,11 @@ COPY public ./public
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# 6️⃣ Volumes & Ports
+# 6️⃣ Volume für PDFs / Config
 VOLUME /data
+
+# 7️⃣ Port für Web-App
 EXPOSE 3000
 
-# 7️⃣ Start des Containers
+# 8️⃣ Container Start
 ENTRYPOINT ["/entrypoint.sh"]
