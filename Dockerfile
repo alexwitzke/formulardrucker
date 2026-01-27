@@ -1,13 +1,18 @@
+# Ubuntu 22.04
 FROM ubuntu:22.04
 
-# System + Druck + Node.js
+# Basis-Pakete
 RUN apt-get update && apt-get install -y \
-    cups \
+    curl \
     hplip \
-    hplip-data \
+    cups \
     cups-filters \
-    nodejs \
-    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Node.js 20 installieren
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Arbeitsverzeichnis
@@ -20,10 +25,10 @@ COPY src /app/src
 # Node-Abhängigkeiten
 RUN npm install
 
-# Konfig / PDFs von außen
+# Volume für PDFs / config
 VOLUME /data
 
-# entrypoint
+# Entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

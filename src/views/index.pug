@@ -32,7 +32,7 @@ block content
       const canvas = document.getElementById(`canvas-${form.id}`);
       const ctx = canvas.getContext('2d');
       const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 1.0 });
+      const viewport = page.getViewport({ scale: 0.66 });
       canvas.height = viewport.height;
       canvas.width = viewport.width;
       const renderContext = { canvasContext: ctx, viewport };
