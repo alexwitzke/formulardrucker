@@ -1,21 +1,30 @@
 #!/bin/bash
 set -e
 
-# CUPS starten im Vordergrund
+PRINTER_NAME="HP2015DN"
+PRINTER_URI="socket://10.0.0.165:9100"
+PRINTER_PPD="drv:///hpcups.drv/hp-laserjet_p2015dn_series.ppd"
+
+echo "Starte CUPS..."
 cupsd -f &
+sleep 3
 
-# kurze Wartezeit, bis CUPS bereit ist
-sleep 2
+# Drucker anlegen (idempotent)
+if ! lpstat -p "$PRINTER_NAME" >/dev/null 2>&1; then
+  echo "Richte Drucker $PRINTER_NAME ein..."
+  lpadmin \
+    -p "$PRINTER_NAME" \
+    -E \
+    -v "$PRINTER_URI" \
+    -m "$PRINTER_PPD"
 
-# Drucker nur anlegen, wenn er noch nicht existiert
-# if ! lpstat -p HP2015DN >/dev/null 2>&1; then
-#     echo "Richte Drucker HP2015DN ein..."
-#     # HPLIP Treiber
-#     lpadmin -p HP2015DN -E -v socket://10.0.0.165:9100 -m hpcups
+  cupsenable "$PRINTER_NAME"
+  cupsaccept "$PRINTER_NAME"
+fi
 
-#     # Standard-Druckoptionen
-#     lpoptions -p HP2015DN -o sides=two-sided-long-edge
-# fi
+echo "Aktiviere Duplex..."
+lpoptions -p "$PRINTER_NAME" -o OptionDuplex=True
+lpoptions -p "$PRINTER_NAME" -o sides=two-sided-long-edge
 
-# Node.js starten
-# exec node src/server.js
+echo "Starte Node.js App..."
+exec node src/server.js

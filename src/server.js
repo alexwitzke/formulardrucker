@@ -26,29 +26,19 @@ if (fs.existsSync(CONFIG_PATH)) {
     config = { printer: "HP2015DN", basePath: "/data/pdfs", forms: [] };
 }
 
-// === Helper: PDF drucken ===
-function printPDF(filePath, formConfig) {
-    if (!filePath || !fs.existsSync(filePath)) {
-        throw new Error("PDF-Datei nicht gefunden oder filePath undefined");
-    }
+function printPDF(form, config) {
+  const pdfPath = path.join(config.basePath, form.file);
 
-    const tmpPS = path.join("/tmp", path.basename(filePath, ".pdf") + ".ps");
+  if (!fs.existsSync(pdfPath)) {
+    throw new Error("PDF nicht gefunden");
+  }
 
-    // PDF → PostScript konvertieren
-    execSync(
-        `gs -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="${tmpPS}" "${filePath}"`
-    );
+  const options = [];
+  if (form.duplex) options.push("-o sides=two-sided-long-edge");
+  if (form.copies) options.push(`-n ${form.copies}`);
 
-    // lp Optionen
-    const lpOptions = [];
-    if (formConfig.duplex) lpOptions.push("-o sides=two-sided-long-edge");
-    if (formConfig.copies) lpOptions.push(`-n ${formConfig.copies || 1}`);
-
-    const cmd = `lp -d ${config.printer} ${lpOptions.join(" ")} "${tmpPS}"`;
-    console.log("Druckbefehl:", cmd);
-    execSync(cmd);
-
-    fs.unlinkSync(tmpPS);
+  const cmd = `lp -d ${config.printer} ${options.join(" ")} "${pdfPath}"`;
+  exec(cmd);
 }
 
 // === Route: Index-Seite mit Vorschau ===
