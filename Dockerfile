@@ -19,7 +19,7 @@ COPY ./src /app/src
 COPY package.json /app/package.json
 
 # Node.js Abhängigkeiten installieren
-RUN npm install
+# RUN npm install
 
 # PDFs Volume
 VOLUME /data/pdfs
@@ -29,4 +29,4 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Start
-CMD ["/entrypoint.sh"]
+# CMD ["/entrypoint.sh"]
