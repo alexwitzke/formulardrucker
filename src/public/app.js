@@ -1,25 +1,58 @@
-document.querySelectorAll(".form-row").forEach(async row => {
-    const pdfUrl = row.dataset.pdf;
-    const pagesContainer = row.querySelector(".pages");
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "/public/pdfjs/pdf.worker.min.js";
 
-    const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-    for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
+document.querySelectorAll(".preview-row").forEach(async row => {
+    const url = row.dataset.pdf;
+
+    const pdf = await pdfjsLib.getDocument(url).promise;
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+
         const viewport = page.getViewport({ scale: 0.4 });
+
         const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        pagesContainer.appendChild(canvas);
+        canvas.className = "preview-page";
 
-        const ctx = canvas.getContext("2d");
-        page.render({ canvasContext: ctx, viewport });
+        row.appendChild(canvas);
+
+        await page.render({
+            canvasContext: ctx,
+            viewport
+        }).promise;
     }
-
-    const printButton = row.querySelector(".print-button");
-    printButton.addEventListener("click", async () => {
-        const formId = row.dataset.id;
-        const res = await fetch(`/print/${formId}`, { method: "POST" });
-        if (res.ok) alert("Druckauftrag gesendet");
-        else alert("Fehler beim Drucken");
-    });
 });
+
+function printForm(id) {
+    fetch(`/print/${id}`, { method: "POST" });
+}
+
+
+// pdfjsLib.GlobalWorkerOptions.workerSrc =
+//     "/public/pdfjs/pdf.worker.min.js";
+
+// document.querySelectorAll("canvas.preview").forEach(async canvas => {
+//     const url = canvas.dataset.pdf;
+
+//     const pdf = await pdfjsLib.getDocument(url).promise;
+//     const page = await pdf.getPage(1);
+
+//     const viewport = page.getViewport({ scale: 0.5 });
+//     const ctx = canvas.getContext("2d");
+
+//     canvas.width = viewport.width;
+//     canvas.height = viewport.height;
+
+//     await page.render({
+//         canvasContext: ctx,
+//         viewport
+//     }).promise;
+// });
+
+// function printForm(id) {
+//     fetch(`/print/${id}`, { method: "POST" });
+// }

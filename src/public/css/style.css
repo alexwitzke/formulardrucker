@@ -1,0 +1,26 @@
+.preview-row {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 0;
+}
+
+.preview-page {
+    border: 1px solid #aaa;
+    flex: 0 0 auto;
+}
+
+
+/* body {
+    font-family: sans-serif;
+}
+
+.form {
+    margin-bottom: 30px;
+}
+
+canvas {
+    display: block;
+    border: 1px solid #aaa;
+    margin-bottom: 10px;
+} */

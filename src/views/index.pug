@@ -4,37 +4,11 @@ block content
   h1 Formulare
 
   each form in forms
-    .form-row
+    .form
       h2= form.name
 
-      // Vorschau jeder Seite
-      #preview-container
-        canvas(id=`canvas-${form.id}`, width="600")
+      .preview-row(
+        data-pdf=`/data/pdfs/${form.file}`
+      )
 
       button(onclick=`printForm('${form.id}')`) Drucken
-
-  script.
-    async function printForm(id) {
-      const res = await fetch(`/print/${id}`, { method: 'POST' });
-      const text = await res.text();
-      alert(text);
-    }
-
-    // PDF.js Vorschau
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '/public/pdfjs/pdf.worker.min.js';
-
-    // Lade alle PDFs
-    const forms = !{JSON.stringify(forms)};
-    forms.forEach(async form => {
-      const url = `/data/pdfs/${form.file}`;
-      const pdf = await pdfjsLib.getDocument(url).promise;
-      const canvas = document.getElementById(`canvas-${form.id}`);
-      const ctx = canvas.getContext('2d');
-      const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 0.66 });
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      const renderContext = { canvasContext: ctx, viewport };
-      page.render(renderContext);
-    });
