@@ -51,19 +51,16 @@ app.post("/print/:id", express.json(), (req, res) => {
 
         const options = [];
         if (form.duplex) options.push("-o OptionDuplex=True");
-        if (form.copies) options.push(`-n ${form.copies}`);
+        //if (form.copies) options.push(`-n ${form.copies}`);
 
         const cmd = `lp -d ${form.printer} ${options.join(" ")} "${pdfPath}"`;
 
-        exec(cmd, (err, stdout, stderr) => {
-            if (err) {
-                console.error("Druckfehler:", err);
-                console.error(stderr);
-                return res.status(500).send("Fehler beim Drucken");
-            }
-            console.log(`Druckauftrag gesendet: ${stdout}`);
-            res.send("Druckauftrag gesendet");
-        });
+        for (let i = 0; i < options.length; i++) {
+            exec(cmd, (err, stdout, stderr) => { });
+        }
+
+        console.log(`Druckauftrag gesendet: ${stdout}`);
+        res.send("Druckauftrag gesendet");
     } catch (err) {
         console.error(err);
         res.status(500).send("Fehler beim Drucken");
