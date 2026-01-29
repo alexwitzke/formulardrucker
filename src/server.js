@@ -55,7 +55,7 @@ app.post("/print/:id", express.json(), (req, res) => {
 
         const cmd = `lp -d ${form.printer} ${options.join(" ")} "${pdfPath}"`;
 
-        for (let i = 0; i < options.length; i++) {
+        for (let i = 0; i < form.length; i++) {
             exec(cmd, (err, stdout, stderr) => { });
         }
 
