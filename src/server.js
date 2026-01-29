@@ -50,7 +50,7 @@ app.post("/print/:id", express.json(), (req, res) => {
         if (!fs.existsSync(pdfPath)) return res.status(404).send("PDF nicht gefunden");
 
         const options = [];
-        if (form.duplex) options.push("-o sides=two-sided-long-edge");
+        if (form.duplex) options.push("-o OptionDuplex=True");
         if (form.copies) options.push(`-n ${form.copies}`);
 
         const cmd = `lp -d ${form.printer} ${options.join(" ")} "${pdfPath}"`;

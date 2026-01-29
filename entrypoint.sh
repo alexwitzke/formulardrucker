@@ -44,7 +44,6 @@ if ! lpstat -p "$PRINTER_NAME_A4_DUPLEX" >/dev/null 2>&1; then
     -o InputSlot=Upper \
     -m "$PRINTER_PPD"
 
-  lpadmin -p "$PRINTER_NAME_A4_DUPLEX" -o sides=two-sided-long-edge
   lpadmin -p "$PRINTER_NAME_A4_DUPLEX" -o OptionDuplex=True
 
   cupsenable "$PRINTER_NAME_A4_DUPLEX"
@@ -60,6 +59,7 @@ if ! lpstat -p "$PRINTER_NAME_A6_MANUAL" >/dev/null 2>&1; then
     -v "$PRINTER_URI" \
     -m "$PRINTER_PPD" \
     -o media=A6 \
+    -o PageSize=A6
     -o InputSlot=Manual \
     -o sides=one-sided
 
