@@ -16,7 +16,7 @@ const CONFIG_PATH = path.join(DATA_DIR, "config.json");
 // --- Queue ---
 const printQueue = [];
 let isPrinting = false;
-const PRINT_DELAY_MS = 4000; // <<<<<< WICHTIG (3–5s empfohlen)
+const PRINT_DELAY_MS = 10000; // <<<<<< WICHTIG (3–5s empfohlen)
 
 // --- Express Setup ---
 app.set("view engine", "pug");
