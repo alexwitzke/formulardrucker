@@ -25,73 +25,82 @@ app.use("/public", express.static(PUBLIC_DIR));
 app.use("/data", express.static(DATA_DIR));
 
 function getConfig() {
-  return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
+    return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
 }
 
 // --- Queue Worker ---
 function processQueue() {
-  if (isPrinting) return;
-  if (printQueue.length === 0) return;
+    if (isPrinting) return;
+    if (printQueue.length === 0) return;
 
-  isPrinting = true;
-  const job = printQueue.shift();
+    isPrinting = true;
+    const job = printQueue.shift();
 
-  console.log("Starte Druckjob:", job.cmd);
+    console.log("Starte Druckjob:", job.cmd);
 
-  exec(job.cmd, (err, stdout, stderr) => {
-    if (err) {
-      console.error("Druckfehler:", err);
-      console.error(stderr);
-    } else {
-      console.log("Druck abgeschlossen");
-    }
+    exec(job.cmd, (err, stdout, stderr) => {
+        if (err) {
+            console.error("Druckfehler:", err);
+            console.error(stderr);
+        } else {
+            console.log("Druck abgeschlossen");
+        }
 
-    setTimeout(() => {
-      isPrinting = false;
-      processQueue();
-    }, job.delayMs);
-  });
+        setTimeout(() => {
+            isPrinting = false;
+            processQueue();
+        }, job.delayMs);
+    });
 }
 
 // --- Routes ---
 app.get("/", (req, res) => {
-  const config = getConfig();
-  res.render("index", { forms: config.forms });
+    const config = getConfig();
+    res.render("index", { forms: config.forms });
 });
 
 app.post("/print/:id", (req, res) => {
-  try {
-    const config = getConfig();
-    const form = config.forms.find(f => f.id === req.params.id);
-    if (!form) return res.status(404).send("Formular nicht gefunden");
+    try {
+        const config = getConfig();
+        const form = config.forms.find(f => f.id === req.params.id);
+        if (!form) return res.status(404).send("Formular nicht gefunden");
 
-    const pdfPath = path.join(DATA_DIR, "pdfs", form.file);
-    if (!fs.existsSync(pdfPath)) {
-      return res.status(404).send("PDF nicht gefunden");
+        const pdfPath = path.join(DATA_DIR, "pdfs", form.file);
+        if (!fs.existsSync(pdfPath)) {
+            return res.status(404).send("PDF nicht gefunden");
+        }
+
+        const copies = form.copies ?? 1;
+
+        for (let i = 0; i < copies; i++) {
+            const options = [];
+
+            if (form.duplex) {
+                options.push("-o sides=two-sided-long-edge");
+            }
+
+            const cmd = `lp -d ${config.printer} ${options.join(" ")} "${pdfPath}"`;
+
+            printQueue.push({
+                cmd,
+                delayMs: PRINT_DELAY_MS
+            });
+        }
+
+        console.log(
+            `${copies} Druckauftrag(e) zur Queue hinzugefügt. Queue-Länge:`,
+            printQueue.length
+        );
+
+        processQueue();
+
+        res.send(`Druckauftrag (${copies} Kopien) eingereiht`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Fehler beim Drucken");
     }
-
-    const options = [];
-    if (form.duplex) options.push("-o sides=two-sided-long-edge");
-    if (form.copies) options.push(`-n ${form.copies}`);
-
-    const cmd = `lp -d ${config.printer} ${options.join(" ")} "${pdfPath}"`;
-
-    printQueue.push({
-      cmd,
-      delayMs: PRINT_DELAY_MS
-    });
-
-    console.log("Job zur Queue hinzugefügt. Queue-Länge:", printQueue.length);
-
-    processQueue();
-
-    res.send("Druckauftrag eingereiht");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Fehler beim Drucken");
-  }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server läuft auf http://localhost:${PORT}`);
+    console.log(`Server läuft auf http://localhost:${PORT}`);
 });
