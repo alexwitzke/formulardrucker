@@ -79,7 +79,7 @@ app.post("/print/:id", (req, res) => {
                 options.push("-o sides=two-sided-long-edge");
             }
 
-            const cmd = `lp -d ${config.printer} ${options.join(" ")} "${pdfPath}"`;
+            const cmd = `lp -d ${form.printer} ${options.join(" ")} "${pdfPath}"`;
 
             printQueue.push({
                 cmd,
