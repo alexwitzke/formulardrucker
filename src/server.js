@@ -55,12 +55,15 @@ app.post("/print/:id", express.json(), (req, res) => {
 
         const cmd = `lp -d ${form.printer} ${options.join(" ")} "${pdfPath}"`;
 
-        for (let i = 0; i < form.length; i++) {
-            exec(cmd, (err, stdout, stderr) => { });
-        }
-
-        console.log(`Druckauftrag gesendet: ${stdout}`);
-        res.send("Druckauftrag gesendet");
+        exec(cmd, (err, stdout, stderr) => {
+            if (err) {
+                console.error("Druckfehler:", err);
+                console.error(stderr);
+                return res.status(500).send("Fehler beim Drucken");
+            }
+            console.log(`Druckauftrag gesendet: ${stdout}`);
+            res.send("Druckauftrag gesendet");
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send("Fehler beim Drucken");
